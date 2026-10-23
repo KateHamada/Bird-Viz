@@ -19,7 +19,7 @@ Link to a steps: https://docs.github.com/en/pages/setting-up-a-github-pages-site
 - jekyll new . --skip-bundle --force
 - Edit the Gemfile
 - Comment out:
-# gem "jekyll", "~> 4.4.1"
-# gem "minima", "~> 2.5"
+```gem "jekyll", "~> 4.4.1"```
+```gem "minima", "~> 2.5"```
 - Uncomment:
-# gem "github-pages", group: :jekyll_plugins
+```gem "github-pages", group: :jekyll_plugins```
