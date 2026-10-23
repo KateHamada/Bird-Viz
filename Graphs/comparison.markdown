@@ -11,7 +11,6 @@ permalink: /Graphs/comparison.html
 
 {% include quick-links.html %}
 {% include table-export.html %}
-{% include chart-common.html %}
 
 <h3>Total by period</h3>
 <table id="totals-table">

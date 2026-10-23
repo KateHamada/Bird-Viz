@@ -4,7 +4,6 @@ layout: home
 
 {% include quick-links.html %}
 {% include table-export.html %}
-{% include chart-common.html %}
 
 <style>
   .stat-box {
