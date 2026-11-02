@@ -2,24 +2,26 @@
 
 Website link: https://katehamada.github.io/Bird-Viz/
 
-A GitHub Pages (Jekyll) site that turns a CSV file into interactive graphs and tables.
+A GitHub Pages (Jekyll) site for our Bird Visualization Dashboard.
 
-If Jekyll is working for you you can preview locally with `bundle exec jekyll serve`.
+## Guide to local set up
+*Mac might not work perfectly I have windows so I can’t check sorry*
+1. Install Ruby 3.3
+Windows:
+```winget install RubyInstallerTeam.RubyWithDevKit.3.3```
+```$env:Path = "C:\Ruby33-x64\bin;" + $env:Path```
+Mac:
+```brew install ruby@3.3```
+```echo 'export PATH="/opt/homebrew/opt/ruby@3.3/bin:$PATH"' >> ~/.zshrc```
+```source ~/.zshrc```
+2. Confirm version 3.3 with: 
+```ruby -v```
+3. Install more stuff
+```gem install bundler```
+```bundle install```
+```bundle update github-pages```
+4. Run locally
+```bundle exec jekyll serve```
 
-Or push to the main branch in order to see the changes.
+If you can't run locally in a worst case you can push to the main branch in order to see the changes but it's not ideal since there's multiple of us working on this project.
 
-### Here's a guide to downloading jekyll
-Link to a steps: https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll 
-
-- Install Ruby+Devkit
-- Base installation and MINGW development toolchain
-- Go to Terminal:
-    - gem install jekyll bundler
-- Navigate to where the github page is stored locally (using cd “project_path”)
-- jekyll new . --skip-bundle --force
-- Edit the Gemfile
-- Comment out:
-```gem "jekyll", "~> 4.4.1"```
-```gem "minima", "~> 2.5"```
-- Uncomment:
-```gem "github-pages", group: :jekyll_plugins```
