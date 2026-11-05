@@ -4,22 +4,48 @@ Website link: https://katehamada.github.io/Bird-Viz/
 
 A GitHub Pages (Jekyll) site that turns a CSV file into interactive graphs and tables.
 
-If Jekyll is working for you you can preview locally with `bundle exec jekyll serve`.
+## Local Development Guide
 
-Or push to the main branch in order to see the changes.
+### 1. Install Ruby 3.3
 
-### Here's a guide to downloading jekyll
-Link to a steps: https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/creating-a-github-pages-site-with-jekyll 
+#### Windows Setup
+Open PowerShell as Administrator and run:
+```powershell
+winget install RubyInstallerTeam.RubyWithDevKit.3.3
+$env:Path = "C:\Ruby33-x64\bin;" + $env:Path
+```
 
-- Install Ruby+Devkit
-- Base installation and MINGW development toolchain
-- Go to Terminal:
-    - gem install jekyll bundler
-- Navigate to where the github page is stored locally (using cd “project_path”)
-- jekyll new . --skip-bundle --force
-- Edit the Gemfile
-- Comment out:
-```gem "jekyll", "~> 4.4.1"```
-```gem "minima", "~> 2.5"```
-- Uncomment:
-```gem "github-pages", group: :jekyll_plugins```
+#### MacOS Setup
+Open Terminal and run (requires [Homebrew](https://brew.sh/)):
+```zsh
+brew install ruby@3.3
+echo 'export PATH="/opt/homebrew/opt/ruby@3.3/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+---
+
+### 2. Verify Installation
+Check that Ruby 3.3 is active in your terminal:
+```bash
+ruby -v
+```
+
+---
+
+### 3. Install Dependencies
+Navigate to your local repository directory and run:
+```bash
+gem install bundler
+bundle install
+bundle update github-pages
+```
+
+---
+
+### 4. Run Locally
+Launch the Jekyll local development server:
+```bash
+bundle exec jekyll serve
+```
+Open `http://127.0.0.1:4000` in your web browser to preview your site.

@@ -11,5 +11,8 @@ We weren't creative but our group name is JKM.
 Each letter is the first letter of our first name:
 
 [Javin Solmirin](https://www.linkedin.com/feed/)
+<br>
 [Kate Hamada](https://www.linkedin.com/in/kate-hamada-/)
+<br>
 [Maximo Vicente](https://www.linkedin.com/feed/)
+<br>
