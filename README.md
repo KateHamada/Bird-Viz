@@ -2,7 +2,7 @@
 
 Website link: https://katehamada.github.io/Bird-Viz/
 
-A GitHub Pages (Jekyll) site that turns a CSV file into interactive graphs and tables.
+A GitHub Pages (Jekyll) site for our Bird Visualization Dashboard for ICS 484 Data Visualization class.
 
 ## Local Development Guide
 
@@ -48,4 +48,16 @@ Launch the Jekyll local development server:
 ```bash
 bundle exec jekyll serve
 ```
-Open `http://127.0.0.1:4000` in your web browser to preview your site.
+You should see something like this:
+```
+[stuff]...
+    Server address: http://127.0.0.1:4000/Bird-Viz/
+  Server running... press ctrl-c to stop.
+Terminate batch job (Y/N)? 
+```
+Open `http://127.0.0.1:4000/Bird-Viz/` in your web browser to preview your site.
+
+---
+## Overview
+- Not Done
+
