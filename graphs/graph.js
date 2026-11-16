@@ -1,14 +1,27 @@
 // Avotrex extinct-bird visualizations using Plotly.js
 // Expects Plotly to be loaded first, and these elements on the page:
-//   <select id="map-color">  (optional)  <div id="map-chart">  <div id="island-chart">  <div id="scatter-chart">
+//   <div id="era-controls">   (the era slider is built here)
+//   <select id="map-color">   (optional)
+//   <div id="map-chart">  <div id="island-chart">  <div id="scatter-chart">
 
 // Path to the CSV, relative to the page (commit the file to your repo)
 const DATA_URL = 'data/Avotrex_traits_v1.csv';
 
+// ---------- eras (the slider stops) ----------
+// Each era lists the Avotrex status codes that belong to it. The slider is
+// cumulative: moving to a later era keeps everything from the earlier ones.
+const ERAS = [
+  { label: 'Prehistoric / Pre-1500', window: '130,000 years ago – 1500 CE', statuses: ['EP', 'EPU'], color: '#8c6d31' },
+  { label: 'Historical', window: 'Post-1500 CE', statuses: ['EX', 'EH'], color: '#7b3294' },
+  { label: 'Edge of Extinction', window: 'Modern (captive / unconfirmed)', statuses: ['EW', 'CR'], color: '#d6604d' },
+  { label: 'Present Day', window: 'Current (extant)', statuses: [], color: '#2166ac' }
+];
+const ERA_OF_STATUS = {};
+ERAS.forEach((era, i) => era.statuses.forEach(s => (ERA_OF_STATUS[s] = i)));
+
 // ---------- shared constants ----------
 const FLIGHT_SCALE = [[0, '#b2182b'], [0.5, '#f7f7f7'], [1, '#2166ac']];
 const ENDEM_COLORS = { insular: '#d95f02', continental: '#1b9e77' };
-const STATUS_COLORS = { EX: '#7b3294', EP: '#1b7837', EH: '#e08214', EW: '#2166ac', EPU: '#999999', CR: '#d6604d' };
 
 // Plotly config options
 const config = {
@@ -48,6 +61,9 @@ function cleanRows(rows) {
     .map(r => {
       const d = { ...r };
       NUMERIC.forEach(k => (d[k] = parseFloat(r[k])));
+      d.status = (r.status || '').trim();
+      // Era in which the species is lost. Unknown codes only appear at the last stop.
+      d.era = ERA_OF_STATUS[d.status] ?? ERAS.length - 1;
       return d;
     })
     .filter(d => NUMERIC.every(k => Number.isFinite(d[k])));
@@ -60,17 +76,24 @@ async function loadAvotrex(url = DATA_URL) {
 }
 
 // ---------- helpers ----------
-function makeSizer(data) {
-  const logs = data.map(d => Math.log10(d.body_mass));
+function makeSizer(all) {
+  const logs = all.map(d => Math.log10(d.body_mass));
   const lo = Math.min(...logs), hi = Math.max(...logs);
-  // marker size scales with log body mass
+  // marker size scales with log body mass (computed on all species so sizes
+  // don't change when the slider moves)
   return d => 6 + 22 * (Math.log10(d.body_mass) - lo) / (hi - lo || 1);
+}
+
+// Fixed log-axis range from all species, so axes don't jump when the slider moves
+function logRange(all, key, pad = 0.1) {
+  const logs = all.map(d => Math.log10(d[key]));
+  return [Math.min(...logs) - pad, Math.max(...logs) + pad];
 }
 
 function hoverText(d) {
   return (
     `<b>${d.species}</b><br>${d.order} / ${d.family}<br>` +
-    `Status: ${d.status}<br>${d.archipelago}<br>` +
+    `Status: ${d.status} (${ERAS[d.era].label})<br>${d.archipelago}<br>` +
     `Flight ability: ${d.flight_ability} (${d.flight_imputation_type})<br>` +
     `Body mass: ${d.body_mass.toFixed(1)} g (${d.body_imputation_type})`
   );
@@ -100,36 +123,39 @@ function flightMarker(sub, t, i, size) {
 }
 
 // ---------- 1. map of where species lived ----------
-function renderMap(data, elementId = 'map-chart', colorBy = 'flight') {
-  const sizeOf = makeSizer(data);
+// all = every species (for stable sizing), visible = species up to the chosen era
+function renderMap(all, visible, elementId = 'map-chart', colorBy = 'flight') {
+  const sizeOf = makeSizer(all);
+  const geoTrace = (sub, name, marker) => ({
+    type: 'scattergeo',
+    mode: 'markers',
+    name,
+    lat: sub.map(d => d.lat),
+    lon: sub.map(d => d.long),
+    text: sub.map(hoverText),
+    hoverinfo: 'text',
+    marker
+  });
+  const plain = (sub, color) => ({
+    size: sub.map(sizeOf), color, opacity: 0.7, line: { width: 0.5, color: '#444' }
+  });
   let traces;
 
   if (colorBy === 'flight') {
-    traces = flightTraces(data, (sub, t, i) => ({
-      type: 'scattergeo',
-      mode: 'markers',
-      name: 'Flight: ' + t,
-      lat: sub.map(d => d.lat),
-      lon: sub.map(d => d.long),
-      text: sub.map(hoverText),
-      hoverinfo: 'text',
-      marker: flightMarker(sub, t, i, sub.map(sizeOf))
-    }));
+    traces = flightTraces(visible, (sub, t, i) =>
+      geoTrace(sub, 'Flight: ' + t, flightMarker(sub, t, i, sub.map(sizeOf))));
+  } else if (colorBy === 'era' || colorBy === 'status') {
+    // 'status' is kept as an alias so an older <option value="status"> still works
+    traces = [];
+    ERAS.forEach((era, i) => {
+      if (!all.some(d => d.era === i)) return; // skip eras with no species (Present Day)
+      const sub = visible.filter(d => d.era === i);
+      traces.push(geoTrace(sub, era.label, plain(sub, era.color)));
+    });
   } else {
-    const key = colorBy === 'status' ? 'status' : 'island_endemicity';
-    const colors = colorBy === 'status' ? STATUS_COLORS : ENDEM_COLORS;
-    traces = [...new Set(data.map(d => d[key]))].sort().map(g => {
-      const sub = data.filter(d => d[key] === g);
-      return {
-        type: 'scattergeo',
-        mode: 'markers',
-        name: g,
-        lat: sub.map(d => d.lat),
-        lon: sub.map(d => d.long),
-        text: sub.map(hoverText),
-        hoverinfo: 'text',
-        marker: { size: sub.map(sizeOf), color: colors[g] || '#888', opacity: 0.7, line: { width: 0.5, color: '#444' } }
-      };
+    traces = ['insular', 'continental'].map(g => {
+      const sub = visible.filter(d => d.island_endemicity === g);
+      return geoTrace(sub, g, plain(sub, ENDEM_COLORS[g]));
     });
   }
 
@@ -143,6 +169,7 @@ function renderMap(data, elementId = 'map-chart', colorBy = 'flight') {
       showcountries: false, coastlinecolor: '#aaa'
     },
     legend: { orientation: 'h', y: -0.02 },
+    uirevision: 'map', // keep the user's zoom/pan when the slider moves
     autosize: true
   };
 
@@ -150,10 +177,10 @@ function renderMap(data, elementId = 'map-chart', colorBy = 'flight') {
 }
 
 // ---------- 2. island vs continental ----------
-function renderIslandComparison(data, elementId = 'island-chart') {
+function renderIslandComparison(all, visible, elementId = 'island-chart') {
   const traces = [];
   ['insular', 'continental'].forEach(g => {
-    const sub = data.filter(d => d.island_endemicity === g);
+    const sub = visible.filter(d => d.island_endemicity === g);
     traces.push({
       type: 'violin',
       name: g,
@@ -197,17 +224,18 @@ function renderIslandComparison(data, elementId = 'island-chart') {
     xaxis: { domain: [0, 0.47] },
     xaxis2: { domain: [0.55, 1] },
     yaxis: { title: 'Flight ability (0 = flightless, 1 = full flight)', range: [-0.05, 1.05] },
-    yaxis2: { title: 'Body mass (g)', type: 'log' },
+    yaxis2: { title: 'Body mass (g)', type: 'log', range: logRange(all, 'body_mass') },
     legend: { orientation: 'h', y: 1.1 },
+    uirevision: 'island',
     autosize: true
   };
 
-  Plotly.newPlot(elementId, traces, layout, config);
+  Plotly.react(elementId, traces, layout, config);
 }
 
 // ---------- 3. wing length vs tarsus length ----------
-function renderWingTarsus(data, elementId = 'scatter-chart') {
-  const traces = flightTraces(data, (sub, t, i) => ({
+function renderWingTarsus(all, visible, elementId = 'scatter-chart') {
+  const traces = flightTraces(visible, (sub, t, i) => ({
     type: 'scatter',
     mode: 'markers',
     name: 'Flight: ' + t,
@@ -220,27 +248,130 @@ function renderWingTarsus(data, elementId = 'scatter-chart') {
 
   const layout = {
     title: { text: 'Wing length vs. tarsus length' },
-    xaxis: { title: 'Wing length (mm)', type: 'log' },
-    yaxis: { title: 'Tarsus length (mm)', type: 'log' },
+    xaxis: { title: 'Wing length (mm)', type: 'log', range: logRange(all, 'wing_length') },
+    yaxis: { title: 'Tarsus length (mm)', type: 'log', range: logRange(all, 'tarsus_length') },
     margin: { t: 60, r: 20, l: 60, b: 50 },
     legend: { orientation: 'h', y: 1.08 },
+    uirevision: 'scatter',
     autosize: true
   };
 
-  Plotly.newPlot(elementId, traces, layout, config);
+  Plotly.react(elementId, traces, layout, config);
+}
+
+// ---------- era slider ----------
+const ERA_CSS = `
+.era-slider { margin: 0 0 20px; }
+.era-slider input[type=range] { display: block; box-sizing: border-box; }
+.era-ticks { display: grid; gap: 8px; }
+.era-tick { background: none; border: 0; border-top: 3px solid rgba(128,128,128,.35); color: inherit;
+  font: inherit; font-size: .85rem; line-height: 1.35; padding: 8px 4px 4px; text-align: center; cursor: pointer; }
+.era-tick[aria-pressed="true"] { border-top-color: currentColor; font-weight: 600; }
+.era-tick span { display: block; font-weight: 400; opacity: .75; font-size: .78rem; }
+.era-tick code { display: block; width: fit-content; margin: 4px auto 0; padding: 1px 6px; border-radius: 4px; font-size: .75rem;
+  font-weight: 400; background: rgba(128,128,128,.18); }
+.era-caption { margin: 8px 0 0; font-size: .85rem; opacity: .85; text-align: center; }
+@media (max-width: 600px) { .era-tick span { display: none; } }
+`;
+
+// Builds the slider inside #containerId and calls onChange(eraIndex) when it moves.
+// Returns the slider's starting era index.
+function buildEraControls(containerId, all, onChange, startEra = ERAS.length - 1) {
+  const box = document.getElementById(containerId);
+  if (!box) return startEra;
+
+  if (!document.getElementById('era-style')) {
+    const style = document.createElement('style');
+    style.id = 'era-style';
+    style.textContent = ERA_CSS;
+    document.head.appendChild(style);
+  }
+
+  const wrap = document.createElement('div');
+  wrap.className = 'era-slider';
+
+  const slider = document.createElement('input');
+  slider.type = 'range';
+  slider.min = 0;
+  slider.max = ERAS.length - 1;
+  slider.step = 1;
+  slider.value = startEra;
+  slider.setAttribute('aria-label', 'Era');
+  // line the slider stops up with the centers of the label columns
+  const pad = 50 / ERAS.length;
+  slider.style.width = `${100 - 2 * pad}%`;
+  slider.style.margin = `0 ${pad}% 4px`;
+
+  const ticks = document.createElement('div');
+  ticks.className = 'era-ticks';
+  ticks.style.gridTemplateColumns = `repeat(${ERAS.length}, 1fr)`;
+
+  const buttons = ERAS.map((era, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'era-tick';
+    b.append(`${i + 1}. ${era.label}`);
+    const win = document.createElement('span');
+    win.textContent = era.window;
+    const codes = document.createElement('code');
+    codes.textContent = era.statuses.length ? era.statuses.join(', ') : 'Extant';
+    b.append(win, codes);
+    b.addEventListener('click', () => { slider.value = i; update(i); });
+    ticks.appendChild(b);
+    return b;
+  });
+
+  const caption = document.createElement('p');
+  caption.className = 'era-caption';
+  caption.setAttribute('aria-live', 'polite');
+
+  function update(i) {
+    buttons.forEach((b, j) => b.setAttribute('aria-pressed', String(j === i)));
+    slider.setAttribute('aria-valuetext', ERAS[i].label);
+    const shown = all.filter(d => d.era <= i).length;
+    const codes = ERAS.slice(0, i + 1).flatMap(e => e.statuses);
+    let text = `${shown} of ${all.length} species lost by this era (${codes.join(', ')})`;
+    if (!all.some(d => d.era === i)) {
+      text += i === ERAS.length - 1
+        ? '. No extant species are in the traits file, so this matches the previous era.'
+        : '. No species were added in this era.';
+    }
+    caption.textContent = text;
+    onChange(i);
+  }
+  slider.addEventListener('input', () => update(Number(slider.value)));
+
+  wrap.append(slider, ticks, caption);
+  box.textContent = '';
+  box.appendChild(wrap);
+  update(startEra);
+  return startEra;
+}
+
+// ---------- page wiring ----------
+const state = { all: [], era: ERAS.length - 1, mapColor: 'flight' };
+
+function renderAll() {
+  const visible = state.all.filter(d => d.era <= state.era);
+  renderMap(state.all, visible, 'map-chart', state.mapColor);
+  renderIslandComparison(state.all, visible, 'island-chart');
+  renderWingTarsus(state.all, visible, 'scatter-chart');
 }
 
 // Automatically load graphs when the DOM is ready
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    const data = await loadAvotrex();
+    state.all = await loadAvotrex();
 
     const select = document.getElementById('map-color');
-    renderMap(data, 'map-chart', select ? select.value : 'flight');
-    if (select) select.addEventListener('change', () => renderMap(data, 'map-chart', select.value));
+    if (select) {
+      state.mapColor = select.value;
+      select.addEventListener('change', () => { state.mapColor = select.value; renderAll(); });
+    }
 
-    renderIslandComparison(data, 'island-chart');
-    renderWingTarsus(data, 'scatter-chart');
+    // builds the slider and draws everything once for the starting era
+    state.era = buildEraControls('era-controls', state.all, i => { state.era = i; renderAll(); });
+    if (!document.getElementById('era-controls')) renderAll();
   } catch (err) {
     console.error(err);
     ['map-chart', 'island-chart', 'scatter-chart'].forEach(id => {

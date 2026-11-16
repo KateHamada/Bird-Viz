@@ -1,24 +1,13 @@
 ---
-layout: home
+layout: default
+title: Avotrex Bird Locations
 ---
 
-<!-- 
-{% include quick-links.html %} 
-quicklinks was used as a navbar (idk if we're gonna use it)
--->
-{% include table-export.html %}
+# Avotrex Bird Locations
+
+Each dot is a species, placed at its recorded latitude and longitude. Dot size scales with body mass. Click an era in the legend to hide or show it.
+
+<div id="map" style="width:100%; height:600px;">Loading map…</div>
 
 <script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
-
-<label for="map-color">Color map by:</label>
-<select id="map-color">
-  <option value="flight">Flight ability</option>
-  <option value="status">Status</option>
-  <option value="endemicity">Island vs. continental</option>
-</select>
-
-<div id="map-chart" style="height:520px"></div>
-<div id="island-chart" style="height:420px"></div>
-<div id="scatter-chart" style="height:480px"></div>
-
-<script src="graphs/graph.js"></script>
+<script src="{{ '/graphs/map.js' | relative_url }}"></script> <script src="{{ '/graphs/map.js' | relative_url }}"></script>
