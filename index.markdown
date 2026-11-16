@@ -3,10 +3,6 @@ layout: default
 title: Avotrex map
 ---
 
-<!-- 
-{% include quick-links.html %} 
-quicklinks was used as a navbar (idk if we're gonna use it)
--->
 {% include table-export.html %}
 {% include quick-links.html %} 
 

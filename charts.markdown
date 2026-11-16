@@ -1,7 +1,6 @@
 ---
 layout: default
 title: Avotrex charts
-
 ---
 
 {% include table-export.html %}
