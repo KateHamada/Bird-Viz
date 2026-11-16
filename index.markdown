@@ -3,6 +3,9 @@ layout: default
 title: Avotrex Bird Locations
 ---
 
+{% include table-export.html %}
+{% include quick-links.html %} 
+
 # Avotrex Bird Locations
 
 Each dot is a species, placed at its recorded latitude and longitude. Dot size scales with body mass. Click an era in the legend to hide or show it.
