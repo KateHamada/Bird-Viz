@@ -1,3 +1,5 @@
+// common.js: common code for all pages. Load before map.js and species_common.js.
+// species_common.js: common code for species pages. Load after common.js, before species_tree.js.
 // species-tree.js: the taxonomic tree for one species. Load after species-common.js.
 // Page element: <div id="species-tree">
 
