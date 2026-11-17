@@ -5,7 +5,7 @@
 //   <div id="map-chart">  <div id="island-chart">  <div id="scatter-chart">
 
 // Path to the CSV, relative to the page (commit the file to your repo)
-const DATA_URL = 'data/Avotrex_traits_v1.csv';
+// const DATA_URL = 'data/Avotrex_traits_v1.csv';
 
 // ---------- eras (the slider stops) ----------
 // Each era lists the Avotrex status codes that belong to it. The slider is
