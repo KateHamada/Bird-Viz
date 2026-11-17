@@ -4,6 +4,33 @@ Website link: https://katehamada.github.io/Bird-Viz/
 
 A GitHub Pages (Jekyll) site for our Bird Visualization Dashboard for ICS 484 Data Visualization class.
 
+## TODO
+- **Complete the data-quality view** (`species_quality.markdown` / `graphs/species_quality.js`)
+  - Add the species-level quality table and explain which values are measured, sourced
+    from literature, imputed, or estimated.
+  - Use the existing species search and shared species data-loading code.
+- **Finish the map enhancements** (`graphs/map.js`)
+  - Add a slider to move between eras.
+  - Add ring colors for continental versus island species.
+  - Show flighted versus flightless birds in the ring/map display.
+
+## Completed
+- **Species tree page** (`species_tree.markdown`, `graphs/species_tree.js`)
+  - Added species search and taxonomic-tree visualization.
+  - Added links between the species tree and data-quality pages.
+- **Map foundation** (`index.markdown`, `graphs/map.js`)
+  - Replaced the previous shared-renderer map with a CSV-backed Plotly map.
+  - Added era-based traces with legend toggles, species hover details, and
+    body-mass-scaled markers.
+- **Data-quality page scaffolding** (`species_quality.markdown`)
+  - Added species search/browse controls, shared data URLs, and the quality-view
+    container.
+- **Navigation updates** (`_includes/quick-links.html`)
+  - Added links for the map, species tree, and data-quality pages.
+  - Disabled the detailed-charts link because the old charts page was removed.
+- **Local development documentation**
+  - Added Ruby/Jekyll installation, dependency, and local-server instructions.
+
 ## Local Development Guide
 
 ### 1. Install Ruby 3.3
@@ -58,8 +85,6 @@ Terminate batch job (Y/N)?
 Open `http://127.0.0.1:4000/Bird-Viz/` in your web browser to preview your site.
 
 ---
-## Overview
-- Not Done
 
 
 ## Overview of Structure
