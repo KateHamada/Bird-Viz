@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phylogenomic overview — all species (PoC)</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; margin: 0; color: #1f2937; line-height: 1.5; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 26px 22px 60px; }
+  .badge { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #475569; background: #eef2f7; border: 1px solid #e5e7eb; border-radius: 999px; padding: 2px 10px; margin: 0 6px 8px 0; }
+  h1 { font-size: 26px; margin: 4px 0 8px; }
+  .lede { font-size: 14.5px; max-width: 940px; margin: 0 0 16px; }
+  .note { font-size: 13.5px; color: #374151; max-width: 940px; }
+  .note ul { margin: 8px 0; padding-left: 20px; }
+  #tree { border: 1px solid #e5e7eb; border-radius: 10px; overflow: auto; max-height: 82vh; background: #fff; }
+  #tree svg { display: block; }
+  .order-label { font-size: 12px; font-weight: 700; fill: #1f2937; }
+  .family-label { font-size: 10px; font-weight: 600; fill: #6b7280; }
+  .count-label { font-size: 10px; fill: #94a3b8; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 12.5px; margin: 10px 0 4px; }
+  .legend .sw { display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  footer { margin-top: 36px; border-top: 1px solid #e5e7eb; padding-top: 16px; color: #6b7280; font-size: 12.5px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="badge">Proof of Concept</span> <span class="badge">ICS 484 · Bird-Viz</span>
+    <h1>Phylogenomic Overview — All Species in the Datasets</h1>
+    <p class="lede">An angular overview of every bird in the project's two datasets — <b>AVOTREX</b> (610 extinct, <code>data/Avotrex_*.csv</code>) and <b>AVONET</b> (11,009 extant, <code>data/DB_Avonet_BirdLife.csv</code>) — grouped into the <b>39 orders</b> of the shared taxonomy. A dashed backbone runs down the left; one elbow and band per order. Each band's <em>height</em> is a log scale of its species count; its <em>width</em> is split into era segments (brown → purple → red → blue). Hover any band for its order's composition and largest families.</p>
+    <p class="lede" style="color:#6b7280;font-size:13.5px;margin-top:-6px">This is intentionally a <em>taxonomic</em> overview, not a molecular phylogeny — there is no single published tree of all 11,619 species we can embed. The time-calibrated, storytelling ribbon tree lives on the <a href="honeycreeper_sankey.html">honeycreeper page</a>, the only region in the datasets with one.</p>
+  </header>
+  <div class="legend" id="legend"></div>
+  <div id="tree" role="img" aria-label="Angular overview tree of all species grouped by order and family"></div>
+  <section class="note">
+    <h2>What this is (and isn't)</h2>
+    <ul>
+      <li><b>Backbone.</b> The topology is the shared taxonomy in the datasets (order → family → genus → species), so this is a <em>taxonomic</em> overview, not a molecular phylogeny — there is no single published tree of all 11,619 species we can embed. The elbow/band layout is a stylized dendrogram: it communicates grouping and relative scale, not evolutionary time. Band height is a log scale of species count (Passeriformes dwarfs everything, as it should).</li>
+      <li><b>Band color = era</b> from each species' status code (<code>EP/EPU</code> prehistoric, <code>EX/EH</code> historical, <code>EW/CR</code> edge, else extant) — the same four-color scheme as the site's map and slider. The red/orange segments show where extinction is concentrated (Passeriformes + a few island orders); the brown shows where the deep, unrecorded losses hide (cormorant + penguin lineages).</li>
+      <li><b>Order-level aggregation</b> by design: ~2,000 families and 11,000+ species would be unreadable as individual rows, so the overview stops at order and pushes family detail into the hover tooltip (top 8 by count, with their extinct totals).</li>
+    </ul>
+  </section>
+  <footer>
+    <p>Data: <code>data/Avotrex_taxonomy_v1.csv</code> · <code>data/Avotrex_traits_v1.csv</code> · <code>data/DB_Avonet_BirdLife.csv</code> (Sayol et al. 2024, AVOTREX). Era scheme: <code>graphs/common.js</code>.</p>
+  </footer>
+</div>
+<script src="data/phylo_overview_data.js"></script>
+<script src="assets/phylo_overview_tree.js"></script>
+</body>
+</html>
