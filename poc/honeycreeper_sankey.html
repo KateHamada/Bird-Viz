@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hawaiian Honeycreeper Extinction — Ribbon Phylogeny (PoC)</title>
+<link rel="stylesheet" href="./assets/sankey_style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="badge">Proof of Concept</span> <span class="badge">ICS 484 · Bird-Viz</span>
+    <h1>Hawaiian Honeycreeper Extinction — Ribbon Phylogeny</h1>
+    <p class="subtitle">A chronological, ribbon-style Sankey of ~60 honeycreeper lineages radiating from the Asian rosefinch (<i>Carpodacus</i>) and thinning to extinction.</p>
+    <p class="lede">Each ribbon is one lineage: it <b>starts where it split off</b> (divergence time, in mya) and <b>tapers to a point</b> where it went extinct; ribbons still alive run to the right edge. Width = population tier (log-scaled); color = the project's era scheme. The x-axis is <b>broken</b> — left panel = deep time (linear mya), right panel = the last ~500 years (linear CE) — so the entire extinction crisis is legible, not a hairline. Hover a ribbon for its record.</p>
+  </header>
+
+  <div class="controls" role="group" aria-label="Filter by era">
+    <span class="group-label">Era:</span>
+    <button class="era-btn" data-era="prehistoric" aria-pressed="true"><span class="swatch" style="background:var(--prehistoric)"></span>Prehistoric / Pre-1500</button>
+    <button class="era-btn" data-era="historic" aria-pressed="true"><span class="swatch" style="background:var(--historic)"></span>Historical (post-1500)</button>
+    <button class="era-btn" data-era="edge" aria-pressed="true"><span class="swatch" style="background:var(--edge)"></span>Edge of Extinction (2023)</button>
+    <button class="era-btn" data-era="present" aria-pressed="true"><span class="swatch" style="background:var(--present)"></span>Present Day (extant)</button>
+    <span class="spacer"></span>
+    <button class="toggle-btn" id="label-toggle" aria-pressed="true">Labels: on</button>
+    <button class="toggle-btn" id="table-toggle" aria-pressed="false">Data table: hidden</button>
+  </div>
+
+  <div id="viz-scroll"><div id="viz" role="img" aria-label="Timeline ribbon phylogeny of Hawaiian honeycreeper extinctions, from 7.2 million years ago to today. Use the data table for per-species values."></div></div>
+  <div id="tooltip" role="status" aria-live="polite"></div>
+  <section id="method" aria-label="Methodology">
+    <h2>Methodology</h2>
+    <div class="note">
+      <p><b>Why "ribbon Sankey," not <code>d3-sankey</code>.</b> A standard Sankey conserves flow (<code>width(parent)=Σwidth(children)</code>), which is false in evolution — a small founding population can radiate into a large clade. So each edge is a <b>tapering filled ribbon</b>: width ∝ the tier at divergence, thinning to zero at the extinction year. The <i>shape</i> of the taper carries the signal; absolute width is a tier, not a census.</p>
+      <p><b>Population tiers (log-scaled widths).</b> <code>abundant 24px · common 16px · rare 10px · critical 5px · extinct → 0</code>. Pre-1970 widths are a qualitative size/range prior (AVOTREX body mass + island range), flagged as such in each tooltip — interpretive, not quantitative.</p>
+      <p><b>Backbone.</b> Topology from Campana et al. (2026, <i>PNAS</i>) mitogenome tree (Figshare doi:10.25573/data.28914329, <code>HOFI_MT_x70_d3.tree</code>); node ages anchored to Lerner et al. (2011, <i>Current Biology</i> 21:1838) + Wikipedia (2026): ancestor–<i>Carpodacus</i> 7.2 mya, poʻouli 5.7 mya, creeper clade 4.7 mya, primary-clade "big bang" 4.0 mya.</p>
+      <h3>Data difficulties (flagged, not hidden)</h3>
+      <ul>
+        <li><b>Extinction years conflict across sources.</b> Maui ʻākepa (1983 vs 1988), ʻōʻū (1989 vs 1998), ʻula-ʻai-hāwane (1892 vs 1937), Koa-finches (1891/1896 Wikipedia vs pre-1795 James &amp; Prince 2008). Each is called out in its tooltip <span class="caveat">⚠ data difficulty</span>.</li>
+        <li><b>AVONET still lists 5 extinct species as "Extant."</b> Maui nukupuu, Kauaʻi nukupuu, Maui ʻākepa, Oʻahu ʻalauahio, ʻōʻū — a taxonomic snapshot, not conservation status. Re-keyed here as <code>extinct</code>.</li>
+        <li><b>Subfossil-only lineages have no DNA.</b> Rendered with a dashed outline so molecular-clock inference reads apart from subfossil evidence.</li>
+        <li><b>Two genus keys changed in Campana 2026.</b> ʻiʻiwi = <code>Vestiaria_coccinea</code> (AVONET <code>Drepanis_coccinea</code>); ʻalawī = <code>Loxops_mana</code> (AVONET <code>Manucerthia_mana</code>). Both keys recorded in the CSV.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="dq" aria-label="Per-species data-quality table" hidden>
+    <h2>Per-species data-quality table</h2>
+    <p class="note">The concrete answer to the <code>species_quality</code> TODO: per-species source, confidence, count year, and caveats. Click a column header to sort.</p>
+    <div id="dq-table" role="region" aria-label="Species data quality"></div>
+  </section>
+
+  <footer>
+    <p><b>Primary references</b></p>
+    <div class="refs">
+      <p>Campana, M.G., et al. (2026). Reticulated adaptive radiation and phylogenomic diversity loss in the Hawaiian honeycreepers. <i>PNAS</i> 123(32):e2536533123. doi:10.1073/pnas.2536533123 · Figshare doi:10.25573/data.28914329.</p>
+      <p>Lerner, H.R.L., et al. (2011). Multilocus resolution of phylogeny and timescale in the extant adaptive radiation of Hawaiian honeycreepers. <i>Current Biology</i> 21(21):1838–1844. doi:10.1016/j.cub.2011.09.039.</p>
+      <p>James, H.F. &amp; Prince, J.P. (2008). Extinction of koa-finches. <i>Diversity &amp; Distributions</i> 14(3):441–451 · James, H.F. &amp; Olson, S.L. (2003). Giant nukupuu. <i>The Auk</i> 120(4):970–981.</p>
+      <p>USFWS (2023). Removal of 21 species from the endangered list (incl. 6 honeycreepers). 88 FR 71644 (2023-10-17) · Aruch, S., et al. (2019). <i>J. Field Ornithol.</i> doi:10.1111/jofo.12364 · Paxton, E.H., et al. (2013). USGS OFR 2013-1150.</p>
+      <p>Olson, S.L. &amp; James, H.F. (1991). <i>Ornithological Monographs</i> 45 &amp; 46 · Pratt, H.D. (2014). <i>Occasional Papers, MUSC</i> 85 · Wikipedia (2026). "Hawaiian honeycreeper."</p>
+    </div>
+  </footer>
+</div>
+
+<script src="./data/honeycreeper_data.js"></script>
+<script src="./assets/sankey_render.js"></script>
+</body>
+</html>
+
