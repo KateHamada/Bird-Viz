@@ -13,7 +13,7 @@ registerRenderer((all, visible) => {
   const traces = ERAS.map((era, i) => {
     const sub = visible.filter(d => d.era === i);
     return {
-      type: 'scattergeo',
+      type: 'scattermap',
       mode: 'markers',
       name: era.label + ' (' + sub.length + ')',
       lat: sub.map(d => d.lat),
@@ -25,14 +25,13 @@ registerRenderer((all, visible) => {
   });
 
   const layout = {
-    margin: { t: 10, b: 10, l: 10, r: 10 },
-    legend: { orientation: 'h', y: -0.05 },
-    geo: {
-      projection: { type: 'natural earth' },
-      showland: true, landcolor: '#eee',
-      showocean: true, oceancolor: '#dceaf5',
-      showcountries: true
-    }
+      margin: { t: 10, b: 10, l: 10, r: 10 },
+      legend: { orientation: 'h', y: -0.05 },
+      map: {
+        style: 'open-street-map', // swap style string here
+        center: { lat: 20.6, lon: -157.5 },
+        zoom: 1.1
+      }
   };
 
   const box = document.getElementById('map');
