@@ -5,12 +5,8 @@ Website link: https://katehamada.github.io/Bird-Viz/
 A GitHub Pages (Jekyll) site for our Bird Visualization Dashboard for ICS 484 Data Visualization class.
 
 ## TODO
-- **Complete the data-quality view** (`species_quality.markdown` / `graphs/species_quality.js`)
-  - Add the species-level quality table and explain which values are measured, sourced
-    from literature, imputed, or estimated.
-  - Use the existing species search and shared species data-loading code.
 - **Finish the map enhancements** (`graphs/map.js`)
-  - Add a slider to move between eras.
+  - Add a timeline (era) slider to move between eras.
   - Add ring colors for continental versus island species.
   - Show flighted versus flightless birds in the ring/map display.
 
