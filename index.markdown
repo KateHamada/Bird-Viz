@@ -13,19 +13,37 @@ Each circle marks a recorded latitude and longitude; circles with multiple speci
 <style>
   .map-layout {
     display: grid;
-    grid-template-columns: minmax(220px, 28%) minmax(0, 1fr);
+    grid-template-columns: 250px minmax(0, 1fr);
     gap: 12px;
     position: relative;
   }
   #map-details {
     box-sizing: border-box;
+    min-width: 0;
     height: 600px;
     overflow-y: auto;
     padding: 12px;
     border: 1px solid #ccc;
   }
   #map-details h2 { font-size: 1.1rem; margin-top: 0; }
-  #map-details ul { padding-left: 1.25rem; }
+  #map-details .species-list {
+    display: grid;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    min-width: 0;
+    padding: 0;
+  }
+  #map-details .species-card {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    background: #fff;
+    border: 1px solid #ccc;
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+    padding: 10px 12px;
+  }
+  #map-details .species-card p { font-size: 0.9rem; margin: 4px 0; }
   @media (max-width: 640px) {
     .map-layout { display: block; }
     #map-details {

@@ -7,9 +7,11 @@
 // have each ring show the data for the flightless vs flighted birds
 
 let currentLocations = new Map();
+const hiddenEras = new Set();
 
 registerRenderer((all, visible) => {
   const size = makeSizer(all); // sized on all species so dots don't resize when the slider moves
+  hiddenEras.clear();
   const details = document.getElementById('map-details');
   if (details) {
     details.textContent = 'Click a circle to see the species at this location.';
@@ -66,23 +68,48 @@ registerRenderer((all, visible) => {
   Plotly.react('map', traces, layout, config).then(() => {
     if (box._locationClickHandler) return;
     box._locationClickHandler = event => {
-      const point = event.points[0];
+      const point = event.points.find(p =>
+        !hiddenEras.has(p.curveNumber) && p.data.visible !== 'legendonly' && p.data.visible !== false);
+      if (!point) return;
       const key = point.customdata;
-      const species = currentLocations.get(key);
+      const locationSpecies = currentLocations.get(key);
+      const species = locationSpecies && locationSpecies.filter(d => !hiddenEras.has(d.era));
       const details = document.getElementById('map-details');
-      if (!species || !details) return;
+      if (!species || !species.length || !details) return;
 
       details.textContent = '';
       const heading = document.createElement('h2');
       heading.textContent = `${species.length} species`;
       const list = document.createElement('ul');
+      list.className = 'species-list';
       species.forEach(d => {
         const item = document.createElement('li');
-        item.textContent = `${d.species} — ${d.order} / ${d.family} · ${d.status}`;
+        item.className = 'species-card';
+        item.style.border = `2px solid ${ERAS[d.era].color}`;
+        const name = document.createElement('strong');
+        name.textContent = d.species;
+        item.appendChild(name);
+        [
+          `${d.order} / ${d.family}`,
+          `Status: ${d.status} (${ERAS[d.era].label})`,
+          d.archipelago,
+          `Flight ability: ${d.flight_ability} (${d.flight_imputation_type})`,
+          `Body mass: ${d.body_mass.toFixed(1)} g (${d.body_imputation_type})`
+        ].forEach(text => {
+          const line = document.createElement('p');
+          line.textContent = text;
+          item.appendChild(line);
+        });
         list.appendChild(item);
       });
       details.append(heading, list);
     };
     box.on('plotly_click', box._locationClickHandler);
+    box.on('plotly_legendclick', event => {
+      if (hiddenEras.has(event.curveNumber)) hiddenEras.delete(event.curveNumber);
+      else hiddenEras.add(event.curveNumber);
+      const details = document.getElementById('map-details');
+      if (details) details.textContent = 'Click a circle to see the species at this location.';
+    });
   });
 }, ['map']);
