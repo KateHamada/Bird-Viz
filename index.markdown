@@ -56,7 +56,7 @@ Each circle marks a recorded latitude and longitude; circles with multiple speci
       background: rgba(255, 255, 255, 0.95);
     }
   }
-  .wrapper { max-width: 1400px; padding-left: 50px; padding-right: 50px; }
+  .wrapper { max-width: 1400px; padding-left: 60px; padding-right: 50px; }
 </style>
 
 <label for="map-color">Color map by:</label>
