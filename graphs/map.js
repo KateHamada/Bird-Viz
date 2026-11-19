@@ -12,8 +12,7 @@ registerRenderer((all, visible) => {
   const size = makeSizer(all); // sized on all species so dots don't resize when the slider moves
   const details = document.getElementById('map-details');
   if (details) {
-    details.textContent = '';
-    details.hidden = true;
+    details.textContent = 'Click a circle to see the species at this location.';
   }
 
   currentLocations = new Map();
@@ -74,9 +73,8 @@ registerRenderer((all, visible) => {
       if (!species || !details) return;
 
       details.textContent = '';
-      details.hidden = false;
       const heading = document.createElement('h2');
-      heading.textContent = `Species at ${species[0].lat}, ${species[0].long} (${species.length})`;
+      heading.textContent = `${species.length} species`;
       const list = document.createElement('ul');
       species.forEach(d => {
         const item = document.createElement('li');
