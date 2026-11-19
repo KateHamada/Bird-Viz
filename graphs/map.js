@@ -1,72 +1,115 @@
-// map.js: the extinction map. Needs common.js loaded first.
-// Page elements: <div id="map-chart">  and optionally <select id="map-color">
-// (values: flight, era, endemicity)
+// map.js: draws the bird locations on a world map. Load AFTER common.js.
+// common.js loads the CSV, builds the era slider, and calls the function below
+// with all species and the species visible at the chosen era.
+//
+// TODO:
+// have each ring be the color of whether it's continental vs island
+// have each ring show the data for the flightless vs flighted birds
 
-// ---------- 1. map of where species lived ----------
-// all = every species (for stable sizing), visible = species up to the chosen era
-function renderMap(all, visible, elementId = 'map-chart', colorBy = 'flight') {
-  const sizeOf = makeSizer(all);
-  const geoTrace = (sub, name, marker) => ({
-    type: 'scattermap',
-    mode: 'markers',
-    name,
-    lat: sub.map(d => d.lat),
-    lon: sub.map(d => d.long),
-    text: sub.map(hoverText),
-    hoverinfo: 'text',
-    marker
-  });
-  const plain = (sub, color) => ({
-    size: sub.map(sizeOf), color, opacity: 0.7, line: { width: 0.5, color: '#444' }
-  });
-  let traces;
+let currentLocations = new Map();
+const hiddenEras = new Set();
 
-  if (colorBy === 'flight') {
-    traces = flightTraces(visible, (sub, t, i) =>
-      geoTrace(sub, 'Flight: ' + t, flightMarker(sub, t, i, sub.map(sizeOf))));
-  } else if (colorBy === 'era' || colorBy === 'status') {
-    // 'status' is kept as an alias so an older <option value="status"> still works
-    traces = [];
-    ERAS.forEach((era, i) => {
-      if (!all.some(d => d.era === i)) return; // skip eras with no species (Present Day)
-      const sub = visible.filter(d => d.era === i);
-      traces.push(geoTrace(sub, era.label, plain(sub, era.color)));
-    });
-  } else {
-    traces = ['insular', 'continental'].map(g => {
-      const sub = visible.filter(d => d.island_endemicity === g);
-      return geoTrace(sub, g, plain(sub, ENDEM_COLORS[g]));
-    });
+registerRenderer((all, visible) => {
+  const size = makeSizer(all); // sized on all species so dots don't resize when the slider moves
+  hiddenEras.clear();
+  const details = document.getElementById('map-details');
+  if (details) {
+    details.textContent = 'Click a circle to see the species at this location.';
   }
 
+  currentLocations = new Map();
+  visible.forEach(d => {
+    const key = JSON.stringify([d.lat, d.long]);
+    if (!currentLocations.has(key)) currentLocations.set(key, []);
+    currentLocations.get(key).push(d);
+  });
+
+  // One trace per era so the legend can still hide or show each group
+  const traces = ERAS.map((era, i) => {
+    const grouped = new Map();
+    visible.filter(d => d.era === i).forEach(d => {
+      const key = JSON.stringify([d.lat, d.long]);
+      if (!grouped.has(key)) grouped.set(key, []);
+      grouped.get(key).push(d);
+    });
+    const groups = Array.from(grouped, ([key, species]) => ({ key, species }));
+    return {
+      type: 'scattergeo',
+      mode: 'markers',
+      name: era.label + ' (' + visible.filter(d => d.era === i).length + ')',
+      lat: groups.map(group => group.species[0].lat),
+      lon: groups.map(group => group.species[0].long),
+      customdata: groups.map(group => group.key),
+      text: groups.map(group => group.species.length > 1
+        ? `<b>${group.species.length} species at this location</b><br>Click to see them`
+        : hoverText(group.species[0])),
+      hoverinfo: 'text',
+      marker: {
+        size: groups.map(group =>
+          Math.max(...group.species.map(size)) + Math.min(group.species.length - 1, 8) * 2),
+        color: era.color, opacity: 0.75, line: { width: 0.5, color: '#444' }
+      }
+    };
+  });
+
   const layout = {
-    title: { text: 'Where the species lived' },
-    margin: { t: 40, b: 0, l: 0, r: 0 },
-    map: {
-        style: 'open-street-map', // swap style string here
-        center: { lat: 20.6, lon: -157.5 },
-        zoom: 1.1
-    },
-    legend: { orientation: 'h', y: -0.02 },
+    margin: { t: 10, b: 10, l: 10, r: 10 },
+    legend: { orientation: 'h', y: -0.05 },
+    geo: {
+      projection: { type: 'natural earth' },
+      showland: true, landcolor: '#eee',
+      showocean: true, oceancolor: '#dceaf5',
+      showcountries: true
+    }
   };
 
-  Plotly.react(elementId, traces, layout, config);
-}
+  const box = document.getElementById('map');
+  if (box.textContent === 'Loading map…') box.textContent = '';
+  Plotly.react('map', traces, layout, config).then(() => {
+    if (box._locationClickHandler) return;
+    box._locationClickHandler = event => {
+      const point = event.points.find(p =>
+        !hiddenEras.has(p.curveNumber) && p.data.visible !== 'legendonly' && p.data.visible !== false);
+      if (!point) return;
+      const key = point.customdata;
+      const locationSpecies = currentLocations.get(key);
+      const species = locationSpecies && locationSpecies.filter(d => !hiddenEras.has(d.era));
+      const details = document.getElementById('map-details');
+      if (!species || !species.length || !details) return;
 
-// ---------- wiring ----------
-let mapColor = 'flight';
-
-function drawMap(all, visible) {
-  renderMap(all, visible, 'map-chart', mapColor);
-}
-registerRenderer(drawMap, ['map-chart']);
-
-document.addEventListener('DOMContentLoaded', () => {
-  const select = document.getElementById('map-color');
-  if (!select) return;
-  mapColor = select.value;
-  select.addEventListener('change', () => {
-    mapColor = select.value;
-    if (state.all.length) drawMap(state.all, visibleData());
+      details.textContent = '';
+      const heading = document.createElement('h2');
+      heading.textContent = `${species.length} species`;
+      const list = document.createElement('ul');
+      list.className = 'species-list';
+      species.forEach(d => {
+        const item = document.createElement('li');
+        item.className = 'species-card';
+        item.style.border = `2px solid ${ERAS[d.era].color}`;
+        const name = document.createElement('strong');
+        name.textContent = d.species;
+        item.appendChild(name);
+        [
+          `${d.order} / ${d.family}`,
+          `Status: ${d.status} (${ERAS[d.era].label})`,
+          d.archipelago,
+          `Flight ability: ${d.flight_ability} (${d.flight_imputation_type})`,
+          `Body mass: ${d.body_mass.toFixed(1)} g (${d.body_imputation_type})`
+        ].forEach(text => {
+          const line = document.createElement('p');
+          line.textContent = text;
+          item.appendChild(line);
+        });
+        list.appendChild(item);
+      });
+      details.append(heading, list);
+    };
+    box.on('plotly_click', box._locationClickHandler);
+    box.on('plotly_legendclick', event => {
+      if (hiddenEras.has(event.curveNumber)) hiddenEras.delete(event.curveNumber);
+      else hiddenEras.add(event.curveNumber);
+      const details = document.getElementById('map-details');
+      if (details) details.textContent = 'Click a circle to see the species at this location.';
+    });
   });
-});
+}, ['map']);
