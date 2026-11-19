@@ -215,6 +215,7 @@ function buildEraControls(containerId, all, onChange, startEra = ERAS.length - 1
   return startEra;
 }
 
+
 // ---------- shared page wiring ----------
 const state = { all: [], era: ERAS.length - 1, renderers: [] };
 
