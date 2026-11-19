@@ -1,0 +1,18 @@
+key,anchors,confidence,source_note,survey_years
+Drepanis_coccinea,1900:3000000;2012:605000,measured,"Paxton, Gorresen & Camp 2013 (USGS OFR 2013-1150): ~605,000 in 2011-12; pre-1900 level is an assumed prior",2012
+Himatione_sanguinea,1900:2000000;2017:1500000,approx,"IUCN LC: >1.5 million (Hawaiʻi ~1.08M in 1986; E. Maui 228k in 2017; Kauaʻi ~98k); pre-1900 level assumed",
+Palmeria_dolei,1900:30000;1980:8000;2017:1768,measured,"Judge et al. 2021 (J. Field Ornithol.): 1,768 (1,193-2,411) in 2017, -78% since 1980; earlier levels assumed",2017
+Oreomystis_bairdi,1900:30000;2000:3000;2018:454;2021:45;2023:5;2025:1,measured,"DLNR: 454 (2018), 45 (2021), 5 (Jul 2023); last wild bird seen 29 Aug 2025 (captive ~40). Pre-2018 levels assumed",2018;2021;2023
+Loxops_caeruleirostris,1900:30000;2000:8000;2012:4000;2016:900;2021:638,measured,"Wikipedia/Paxton et al. 2022: <5,000 (2012), <1,000 (2016), 638 (2021); -21%/yr; earlier levels assumed",2012;2016;2021
+Loxops_coccineus,1900:40000;1980:20000;2016:11000,approx,"Order of magnitude only (~10^4); levels before 2016 assumed",
+Loxops_mana,1900:40000;1980:20000;2016:10000,approx,"Order of magnitude only (~10^4); levels before 2016 assumed",
+Paroreomyza_montana,1900:150000;2017:99060,measured,"Judge et al. 2021: 99,060 (88,502-106,954) in 2017; earlier level assumed",2017
+Hemignathus_wilsoni,1900:20000;1980:3000;2016:1500,approx,"Order of magnitude only (~10^3); earlier levels assumed",
+Chlorodrepanis_virens,1900:1500000;2010:1100000,approx,"Common; lowland populations recovering (malaria tolerance); ~10^6 order of magnitude",
+Chlorodrepanis_stejnegeri,1900:30000;2000:8000;2018:4000,approx,"Order of magnitude only (~10^3-10^4); declining; earlier levels assumed",
+Chlorodrepanis_flava,1900:20000;1980:6000;2018:4000,approx,"Order of magnitude only (~10^3-10^4); earlier levels assumed",
+Loxioides_bailleui,1900:50000;1975:1614;1998:4396;2024:666,measured,"Hunt et al. 2025 (Avian Conserv. Ecol. 20:10): 666 (412-970) in 2024, -90% since 1998; 1,614 (1975); 4,396 (1998); pre-1975 level assumed",1975;1998;2024
+Pseudonestor_xanthophrys,1900:30000;1980:500;2017:157;2021:150,approx,"Judge et al.: 157 (44-312) in 2017; <150 (USFWS/MFBRP 2021); ~500 (1980) is approximate; pre-1980 level assumed",2017;2021
+Telespiza_cantans,1900:15000;2012:10000,approx,"Order of magnitude only (~10^4); fluctuates",
+Telespiza_ultima,1900:4000;2012:3500,approx,"~3,000-5,000 (fluctuates)",
+Magumma_parva,1900:30000;1981:6000;2018:800,approx,"Order of magnitude only (~10^3); range -85%; earlier levels assumed",
