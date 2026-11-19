@@ -4,11 +4,11 @@ title: Avotrex Bird Locations
 ---
 
 {% include table-export.html %}
-{% include quick-links.html %} 
+{% include quick-links.html %}
 
 # Avotrex Bird Locations
 
-Each circle marks a recorded latitude and longitude; circles with multiple species are larger. Click a circle to see the species at that location. Click an era in the legend to hide or show it.
+Each circle marks a recorded latitude and longitude; circles with multiple species are larger, and dot size scales with body mass. Click a circle to see the species at that location. Click an item in the legend to hide or show it (double-click to show only that item). Use the dropdown to change what the circles are colored by, and the slider below the map to step through the eras.
 
 <style>
   .map-layout {
@@ -56,22 +56,21 @@ Each circle marks a recorded latitude and longitude; circles with multiple speci
       background: rgba(255, 255, 255, 0.95);
     }
   }
+  .wrapper { max-width: 1400px; padding-left: 50px; padding-right: 50px; }
 </style>
+
+<label for="map-color">Color map by:</label>
+<select id="map-color">
+  <option value="flight">Flight ability</option>
+  <option value="era" selected>Era lost</option>
+  <option value="endemicity">Island vs. continental</option>
+</select>
 
 <div class="map-layout">
   <div id="map-details" aria-live="polite">Click a circle to see the species at this location.</div>
   <div id="map" style="width:100%; height:600px;">Loading map…</div>
 </div>
-Each dot is a species, placed at its recorded latitude and longitude. Dot size scales with body mass. Click an era in the legend to hide or show it.
 
-<label for="map-color">Color map by:</label>
-<select id="map-color">
-  <option value="flight">Flight ability</option>
-  <option value="status">Status</option>
-  <option value="era">Era lost</option>
-  <option value="endemicity">Island vs. continental</option>
-</select>
-<div id="map-chart" style="width:100%; height:600px;"></div>
 <div id="era-controls"></div>
 
 <script src="https://cdn.plot.ly/plotly-3.5.1.min.js"></script>
